@@ -1,0 +1,4 @@
+station,section,datum_m,bed_m,priority,offset_s,gap_s
+U1,上游外闸,0,-1,1,0,600
+U2,上游外闸,0.2,-1,2,0,600
+D1,下游浅滩,-0.15,-0.5,1,600,600

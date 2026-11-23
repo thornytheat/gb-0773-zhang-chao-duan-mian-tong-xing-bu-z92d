@@ -1,0 +1,12 @@
+name: hydrology-grid
+services:
+  app:
+    build: .
+    ports:
+      - "18472:8000"
+    environment:
+      TIDE_DB: var/tide.sqlite3
+    volumes:
+      - tide-journals:/srv/tide/var
+volumes:
+  tide-journals:

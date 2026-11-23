@@ -1,0 +1,7 @@
+:root {
+  --bg:#f9faf7; --rail:#e7f0ed; --panel:#fffefa; --line:#c6d6d4; --ink:#16303a;
+  --muted:#4c6770; --accent:#135d71; --accent-soft:#d8eceb; --accent-ink:#fff;
+  --ok:#27634d; --warn:#825f25; --bad:#983d39; --ui:system-ui,sans-serif;
+  --mono:ui-monospace,monospace; --doc:"Songti SC", "Noto Serif CJK SC", serif;
+  --row:36px; --gap:14px; --pad:20px; --radius:0; --bar:52px;
+}
