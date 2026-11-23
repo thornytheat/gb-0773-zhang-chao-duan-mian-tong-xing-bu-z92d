@@ -1,0 +1,24 @@
+{% if pairing.feasible %}
+<table class="roundtrip-table"><thead><tr><th>安排</th><th>去程出发</th><th>卸货就绪</th><th>回程出发</th><th>回程富余 s</th><th>潮尺（去 / 回）</th><th></th></tr></thead>
+<tbody>{% for name, plan in pairing.plans.items() %}
+<tr class="plan-row" data-plan="{{ name }}">
+  <td>{{ '早走腾位' if name == 'early' else '晚走留余' }}</td>
+  <td><b>{{ time(plan.outbound.departure) }}</b></td>
+  <td>{{ time(plan.unload_ready) }}</td>
+  <td><b>{{ time(plan.return_leg.departure) }}</b></td>
+  <td>{{ plan.buffer_s }}</td>
+  <td class="gauge-lines" title="两程各断面潮尺行">
+    {% for leg in (plan.outbound, plan.return_leg) %}
+    <span class="leg-lines">{{ '去' if loop.first else '回' }}
+      {% for ev in leg.evidence %}{{ ev.section }}:{{ ev.lines|join('/') or '—' }}{% if not loop.last %} · {% endif %}{% endfor %}
+    </span>{% endfor %}
+  </td>
+  <td><button type="button" class="confirm-btn" data-plan="{{ name }}"
+    {% if confirmation and confirmation.detail.plan != name %}disabled title="该船期已确认另一份安排"{% endif %}>
+    {{ '已确认' if confirmation and confirmation.detail.plan == name else '确认往返' }}</button></td>
+</tr>{% endfor %}</tbody></table>
+<p class="hint">去程到港后须留足 {{ pairing.unloading_s }} s 卸货；回程出发落在其后的最早可行潮窗。卸货时长一变即按新时长重算。</p>
+{% else %}
+<p class="no-window">{{ '船期内无去程可行潮窗。' if pairing.reason == 'NO_OUTBOUND_WINDOW' else '卸货后没有可行回程潮窗，往返不予确认。' }}</p>
+{% endif %}
+<p id="roundtrip-feedback" class="feedback" role="status"></p>

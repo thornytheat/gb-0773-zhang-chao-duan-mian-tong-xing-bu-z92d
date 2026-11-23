@@ -9,6 +9,7 @@ from app.errors import TideError
 from app.flow import calculate
 from app.modules.journal.service import record
 from app.modules.proof.service import issue
+from app.modules.roundtrip.service import pair_roundtrip
 from app.reasons import REASONS
 from app.source import load_sources
 
@@ -16,6 +17,7 @@ web = Blueprint('tide_desk', __name__)
 CHAPTERS = {'coverage': '船期覆盖勾稽', 'readings': '潮尺读数采信', 'datum': '站点基准统一',
             'crossings': '水位阈值交点', 'windows': '全程可行潮窗', 'journal': '运行留档', 'proof': '潮窗证据签发'}
 STATES = {'open': '可行', 'blocked': '不可行', 'unknown': '缺证'}
+DEFAULT_UNLOAD_S = 900
 
 
 @web.get('/')
@@ -36,8 +38,17 @@ def desk(chapter='coverage'):
     if vessel not in reports['coverage']['ships']:
         raise TideError('NO_VESSEL', '找不到该船期', 404)
     proof = issue(receipt, sources, reports) if chapter == 'proof' else None
+    try:
+        unloading_s = int(request.args.get('unloading_s', DEFAULT_UNLOAD_S))
+        if unloading_s < 0:
+            raise ValueError
+    except (TypeError, ValueError):
+        unloading_s = DEFAULT_UNLOAD_S
+    pairing = pair_roundtrip(reports['crossings'], reports['windows'], vessel, unloading_s)
+    confirmation = journal().get_roundtrip(key, vessel) if key else None
     return render_template('base.html', chapter=chapter, chapters=CHAPTERS, states=STATES, sample=sample,
                            receipt=receipt, key=key, reports=reports, vessel=vessel, reason=REASONS,
                            gauge_fill=min(100, float(Fraction(reports['windows'][vessel]['order']['threshold_m'])) * 25),
                            seal=proof['seal_sha256'] if proof else None, time=instant, rule=RULES,
+                           pairing=pairing, confirmation=confirmation, unloading_s=unloading_s,
                            history=journal().list() if chapter == 'journal' else [])

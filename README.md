@@ -19,4 +19,6 @@ docker compose up --build
 
 `GET /api/stage/{readings,datum,crossings,windows,coverage}` 可查看样例阶段结果。对同路径执行 POST 可提交 `{"sources":{"observations":"...","stations":"...","vessels":"..."}}`。`POST /api/journal` 接受同一输入或 `{"sample":"dirty"}`。`GET /api/journal/<id>` 查归档，`POST /api/journal/<id>/rerun` 复算，`GET /api/export/<id>` 下载证据。
 
+往返安排在船期页（`/`）成对给出 `early`（早走腾位）与 `late`（晚走留余）两程出发时刻，随卸货时长 `unloading_s` 重算；回程无可行潮窗则不确认。`GET /api/roundtrip/<船期>` 预览（可带 `unloading_s`、`sample`/`sources` 或留档 `run`），`POST` 带 `{"plan":"early|late","unloading_s":900}` 确认：同安排重试幂等不重复留档，同一船期的不同安排返回 409。`GET /api/journal/<id>/roundtrips` 回查留档，含两程各自的断面潮尺行。
+
 字段见 [数据字典](docs/DATA-DICTIONARY.md)，规则与回归见 [深度登记](docs/DEPTH.md)。本机运行 `python -m pytest -q`。

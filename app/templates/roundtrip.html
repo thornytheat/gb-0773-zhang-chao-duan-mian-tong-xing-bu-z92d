@@ -1,0 +1,21 @@
+<section class="panel roundtrip-panel" data-vessel="{{ vessel }}"
+         data-run="{{ key or '' }}" data-sample="{{ sample }}" data-unloading="{{ unloading_s }}">
+  <h2>往返成对出发时刻</h2>
+  <form id="unload-form" method="get">
+    <input type="hidden" name="sample" value="{{ sample }}">
+    <input type="hidden" name="vessel" value="{{ vessel }}">
+    {% if key %}<input type="hidden" name="run" value="{{ key }}">{% endif %}
+    <label>卸货时长 s
+      <input id="unloading-input" name="unloading_s" type="number" min="0" step="1"
+             value="{{ unloading_s }}" inputmode="numeric">
+    </label>
+    <button type="submit">重算两程</button>
+  </form>
+  <div id="roundtrip-body">
+    {% include 'roundtrip_body.html' %}
+  </div>
+  {% if confirmation %}
+  <p class="confirm-banner">本船期已确认 · {{ '早走腾位' if confirmation.detail.plan == 'early' else '晚走留余' }}
+    · 留档指纹 <code>{{ confirmation.plan_key[:12] }}</code></p>
+  {% endif %}
+</section>
